@@ -137,6 +137,40 @@ run_test("Concurrent Logging Stress & flock(LOCK_EX) Integrity (50 writes)", fun
     }
 });
 
+// 7. Test Garbage Data Fuzzing & Out-of-Order Boot Calls
+run_test("Garbage Data Fuzzing & Out-of-Order Lifecycle Robustness", function() {
+    // 1. Boot idempotency
+    $s1 = PhpArmorShield::boot();
+    $s2 = PhpArmorShield::boot();
+    assert($s1 === $s2, "Multiple boot() calls must return identical singleton instance");
+
+    // 2. Unset critical superglobals
+    $backupServer = $_SERVER;
+    unset($_SERVER['REQUEST_URI']);
+    unset($_SERVER['HTTP_HOST']);
+    unset($_SERVER['QUERY_STRING']);
+    
+    // 3. Fuzzing with garbage types and emoji bomb
+    $_GET = [
+        'deep' => ['a' => ['b' => ['c' => str_repeat("👨‍👩‍👧‍👦", 500)]]],
+        'nulls' => "data\0evil",
+        'array_as_scalar' => [1, 2, 3],
+        'huge_int' => '999999999999999999999999999999',
+    ];
+
+    // Must execute inspect without throwing any Notice/Warning/Error
+    $ref = new ReflectionClass($s1);
+    $inspect = $ref->getMethod('inspect');
+    if (PHP_VERSION_ID < 80100) { $inspect->setAccessible(true); }
+    
+    // Should run smoothly
+    $inspect->invoke($s1);
+
+    // Restore
+    $_SERVER = $backupServer;
+    $_GET = [];
+});
+
 echo "\n--------------------------------------------------------\n";
 echo "Chaos Results: {$passed} Passed, {$failed} Failed\n";
 echo "--------------------------------------------------------\n";
