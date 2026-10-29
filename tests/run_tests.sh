@@ -15,12 +15,17 @@ echo ""
 
 FAILED=0
 
-echo ">>> [1/2] Running Unit & Exploit Prevention Tests..."
+echo ">>> [1/3] Running Unit & Exploit Prevention Tests..."
 php "${SCRIPT_DIR}/test_runtime_armor.php" || FAILED=1
 
 echo ""
-echo ">>> [2/2] Running CLI Integration & Command Tests..."
+echo ">>> [2/3] Running CLI Integration & Command Tests..."
 bash "${SCRIPT_DIR}/test_cli.sh" || FAILED=1
+
+echo ""
+echo ">>> [3/3] Running Chaos & Fault-Injection Tests..."
+php "${SCRIPT_DIR}/test_chaos.php" || FAILED=1
+"${SCRIPT_DIR}/../bin/php-armor" verify-patches >/dev/null || FAILED=1
 
 echo ""
 if [ "$FAILED" -ne 0 ]; then

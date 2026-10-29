@@ -448,6 +448,44 @@ cmd_feed() {
     echo ""
 }
 
+cmd_verify_patches() {
+    banner
+    echo -e "${C_BOLD}🛡️ Verifying C-Patch Integrity & Checksums...${C_RESET}\n"
+    local total=0
+    local valid=0
+    local failed=0
+
+    while IFS= read -r pfile; do
+        total=$((total + 1))
+        local bname
+        bname=$(basename "$pfile")
+        if [ ! -s "$pfile" ]; then
+            echo -e "  ${C_RED}✗ Corrupt / Empty: ${bname}${C_RESET}"
+            failed=$((failed + 1))
+            continue
+        fi
+
+        local sha
+        if command -v sha256sum >/dev/null 2>&1; then
+            sha=$(sha256sum "$pfile" | awk '{print $1}')
+        else
+            sha=$(shasum -a 256 "$pfile" | awk '{print $1}')
+        fi
+
+        echo -e "  ${C_GREEN}✓ Verified:${C_RESET} ${bname} ${C_CYAN}(${sha:0:16}...)${C_RESET}"
+        valid=$((valid + 1))
+    done < <(find "${ROOT_DIR}/patches" -type f -name "*.patch" | sort)
+
+    echo -e "\n────────────────────────────────────────────────────────"
+    if [ "$failed" -eq 0 ]; then
+        echo -e "${C_GREEN}✅ All ${total} C-patches verified intact with valid SHA256!${C_RESET}\n"
+        return 0
+    else
+        echo -e "${C_RED}❌ ${failed} of ${total} patches failed verification!${C_RESET}\n"
+        return 1
+    fi
+}
+
 # -------------------------------------------------------------
 # CLI Entrypoint Router
 # -------------------------------------------------------------
@@ -474,6 +512,9 @@ case "$COMMAND" in
     patch)
         shift || true
         cmd_patch "$@"
+        ;;
+    verify-patches|verify)
+        cmd_verify_patches
         ;;
     feed)
         cmd_feed

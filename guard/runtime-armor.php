@@ -323,6 +323,7 @@ final class PhpArmorShield
             return null;
         };
 
+        if (!empty($_SERVER['REQUEST_URI']) && ($res = $scan($_SERVER['REQUEST_URI']))) return $res;
         if (!empty($_GET) && ($res = $scan($_GET))) return $res;
         if (!empty($_POST) && ($res = $scan($_POST))) return $res;
         return null;
@@ -359,6 +360,7 @@ final class PhpArmorShield
             return null;
         };
 
+        if (!empty($_SERVER['REQUEST_URI']) && ($res = $scan($_SERVER['REQUEST_URI']))) return $res;
         if (!empty($_GET) && ($res = $scan($_GET))) return $res;
         if (!empty($_POST) && ($res = $scan($_POST))) return $res;
         if (!empty($_COOKIE) && ($res = $scan($_COOKIE))) return $res;
@@ -434,10 +436,14 @@ final class PhpArmorShield
             'uri'         => $uri,
         ];
 
-        // Atomic append to log
+        // Atomic append to log with read-only filesystem fallback
         if (!empty($this->config['log_enabled']) && $this->logFile) {
             $line = json_encode($entry) . "\n";
-            @file_put_contents($this->logFile, $line, FILE_APPEND | LOCK_EX);
+            $written = @file_put_contents($this->logFile, $line, FILE_APPEND | LOCK_EX);
+            if ($written === false) {
+                // Read-only filesystem or unwritable log destination: fallback to system error_log
+                @error_log("[EOL-PHP-Armor Incident {$incidentId}] " . $line);
+            }
         }
 
         if (isset($this->config['mode']) && $this->config['mode'] === 'monitor') {
