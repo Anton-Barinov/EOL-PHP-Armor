@@ -99,6 +99,44 @@ run_test("Zero-Dependency Immunity to disable_functions", function() {
     }
 });
 
+// 6. Test Concurrent Logging Stress & flock(LOCK_EX) Integrity
+run_test("Concurrent Logging Stress & flock(LOCK_EX) Integrity (50 writes)", function() {
+    $tempLog = tempnam(sys_get_temp_dir(), 'armor_stress_');
+    $shield = PhpArmorShield::boot();
+    $ref = new ReflectionClass($shield);
+    
+    $propLog = $ref->getProperty('logFile');
+    if (PHP_VERSION_ID < 80100) { $propLog->setAccessible(true); }
+    $propLog->setValue($shield, $tempLog);
+
+    $propCfg = $ref->getProperty('config');
+    if (PHP_VERSION_ID < 80100) { $propCfg->setAccessible(true); }
+    $cfg = $propCfg->getValue($shield);
+    $cfg['mode'] = 'monitor';
+    $cfg['log_enabled'] = true;
+    $propCfg->setValue($shield, $cfg);
+
+    $blockMethod = $ref->getMethod('block');
+    if (PHP_VERSION_ID < 80100) { $blockMethod->setAccessible(true); }
+
+    for ($i = 0; $i < 50; $i++) {
+        $blockMethod->invoke($shield, [
+            'rule'    => 'STRESS_CONCURRENCY_TEST',
+            'detail'  => "Concurrent incident write iteration #{$i}",
+            'payload' => "sample_payload_{$i}",
+        ]);
+    }
+
+    $lines = file($tempLog, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    unlink($tempLog);
+
+    assert(count($lines) === 50, "Expected 50 log lines, got " . count($lines));
+    foreach ($lines as $line) {
+        $decoded = json_decode($line, true);
+        assert(is_array($decoded) && isset($decoded['incident_id']), "Each log entry must be valid atomic JSON");
+    }
+});
+
 echo "\n--------------------------------------------------------\n";
 echo "Chaos Results: {$passed} Passed, {$failed} Failed\n";
 echo "--------------------------------------------------------\n";
