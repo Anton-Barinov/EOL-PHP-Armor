@@ -191,6 +191,7 @@ VERIFICATION: Overhead is negligible (< 0.05ms per request).
 
 ### 🔗 Related Open-Source Projects by Anton Barinov
 
+- **[Composer-Audit-ZeroTrust](https://github.com/Anton-Barinov/Composer-Audit-ZeroTrust)**: Zero-Trust Supply-Chain Security & Typosquatting Auditor for Composer dependencies.
 - **[php2shell-patches](https://github.com/Anton-Barinov/php2shell-patches)**: The original viral repository providing C-patches for CVE-2026-109618 / 19.
 - **[PHP-Hardening-Kit](https://github.com/Anton-Barinov/PHP-Hardening-Kit)**: Modular defense-in-depth security kit with 5 specialized rule engines.
 - **[EOL-PHP-SecAuto](https://github.com/Anton-Barinov/EOL-PHP-SecAuto)**: Automated multi-stage Dockerfile generator with compiler hardening for legacy PHP.
