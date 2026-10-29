@@ -1,0 +1,149 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-10-29T10:00:00Z",
+  "maintainer": "Anton Barinov <https://github.com/Anton-Barinov>",
+  "feed_url": "https://raw.githubusercontent.com/Anton-Barinov/EOL-PHP-Armor/main/feed/sec-feed.json",
+  "vulnerabilities": [
+    {
+      "id": "CVE-2026-109618",
+      "alias": "php2shell-oom",
+      "title": "Multipart Form-Data OOM Bailout State Corruption & Unauthenticated RCE",
+      "severity": "CRITICAL",
+      "cvss": 9.8,
+      "cwe": "CWE-400 / CWE-119",
+      "affected_versions": ["5.4.*", "5.5.*", "5.6.*", "7.0.*", "7.1.*", "7.2.*", "7.3.*", "7.4.*", "8.0.*", "8.1.*"],
+      "remediation_status": {
+        "upstream_official": "UNSUPPORTED (EOL)",
+        "eol_php_armor_c_patch": true,
+        "eol_php_armor_runtime_guard": true
+      },
+      "detection": {
+        "ini_checks": [
+          { "directive": "session.upload_progress.enabled", "vulnerable_value": "1" }
+        ],
+        "signature_keywords": ["PHP_SESSION_UPLOAD_PROGRESS", "multipart/form-data"]
+      },
+      "c_patches": [
+        "php-5.4/php-5.4-enhanced-universal.patch",
+        "php-5.5/php-5.5-enhanced-universal.patch",
+        "php-5.6/php-5.6-enhanced-universal.patch",
+        "php-7.0/php-7.0-enhanced-universal.patch",
+        "php-7.1/php-7.1-enhanced-universal.patch",
+        "php-7.2/php-7.2-enhanced-universal.patch",
+        "php-7.3/php-7.3-enhanced-universal.patch",
+        "php-7.4/php-7.4-enhanced-universal.patch",
+        "php-8.0/php-8.0-enhanced-universal.patch",
+        "php-8.1/php-8.1-enhanced-universal.patch"
+      ],
+      "description": "During multipart form processing with session upload progress enabled, memory exhaustion during boundary parsing triggers zend_bailout without releasing multipart header pointers, leaving memory in an inconsistent state and permitting remote code execution."
+    },
+    {
+      "id": "CVE-2026-109619",
+      "alias": "php2shell-uaf",
+      "title": "Session Upload Progress Key Sanitization Use-After-Free",
+      "severity": "CRITICAL",
+      "cvss": 9.8,
+      "cwe": "CWE-416",
+      "affected_versions": ["5.4.*", "5.5.*", "5.6.*", "7.0.*", "7.1.*", "7.2.*", "7.3.*", "7.4.*", "8.0.*", "8.1.*"],
+      "remediation_status": {
+        "upstream_official": "UNSUPPORTED (EOL)",
+        "eol_php_armor_c_patch": true,
+        "eol_php_armor_runtime_guard": true
+      },
+      "detection": {
+        "ini_checks": [
+          { "directive": "session.upload_progress.enabled", "vulnerable_value": "1" }
+        ]
+      },
+      "c_patches": [
+        "php-5.4/php-5.4-enhanced-universal.patch",
+        "php-5.5/php-5.5-enhanced-universal.patch",
+        "php-5.6/php-5.6-enhanced-universal.patch",
+        "php-7.0/php-7.0-enhanced-universal.patch",
+        "php-7.1/php-7.1-enhanced-universal.patch",
+        "php-7.2/php-7.2-enhanced-universal.patch",
+        "php-7.3/php-7.3-enhanced-universal.patch",
+        "php-7.4/php-7.4-enhanced-universal.patch",
+        "php-8.0/php-8.0-enhanced-universal.patch",
+        "php-8.1/php-8.1-enhanced-universal.patch"
+      ],
+      "description": "Manipulating upload progress key names allows an attacker to cause dangling session string pointers, resulting in a heap use-after-free vulnerability exploitable for arbitrary code execution."
+    },
+    {
+      "id": "CVE-2024-4577",
+      "alias": "cgi-bestfit-rce",
+      "title": "PHP-CGI Windows Best-Fit Character Mapping Argument Injection",
+      "severity": "CRITICAL",
+      "cvss": 9.8,
+      "cwe": "CWE-88",
+      "affected_versions": ["5.4.*", "5.5.*", "5.6.*", "7.0.*", "7.1.*", "7.2.*", "7.3.*", "7.4.*", "8.0.*", "8.1.*", "8.2.0 - 8.2.19", "8.3.0 - 8.3.7"],
+      "remediation_status": {
+        "upstream_official": "Patched only in 8.1.29+, 8.2.20+, 8.3.8+",
+        "eol_php_armor_c_patch": true,
+        "eol_php_armor_runtime_guard": true
+      },
+      "detection": {
+        "sapi_checks": ["cgi-fcgi", "cgi"],
+        "os_checks": ["Windows", "All (if behind reverse proxies converting charset)"]
+      },
+      "description": "When PHP is configured in CGI mode, Windows Unicode Best-Fit character conversion maps soft hyphen (%ad) and related characters to ASCII dash (-), allowing arbitrary command-line switch injection (-d allow_url_include=1)."
+    },
+    {
+      "id": "CVE-2024-2961",
+      "alias": "iconv-filter-rce",
+      "title": "glibc iconv ISO-2022-CN-EXT Buffer Overflow via php://filter",
+      "severity": "CRITICAL",
+      "cvss": 9.8,
+      "cwe": "CWE-122",
+      "affected_versions": ["5.4.*", "5.5.*", "5.6.*", "7.0.*", "7.1.*", "7.2.*", "7.3.*", "7.4.*", "8.0.*", "8.1.*", "8.2.*", "8.3.*"],
+      "remediation_status": {
+        "upstream_official": "OS-level patch in glibc",
+        "eol_php_armor_c_patch": false,
+        "eol_php_armor_runtime_guard": true
+      },
+      "detection": {
+        "signature_keywords": ["convert.iconv.", "ISO-2022-CN-EXT"]
+      },
+      "description": "Exploiting vulnerable glibc iconv conversion routines via complex php://filter sequences leads to heap buffer overflow and unauthenticated remote code execution in any script that accepts arbitrary file names or URLs."
+    },
+    {
+      "id": "CVE-2018-17082",
+      "alias": "phar-deserialization",
+      "title": "Arbitrary Object Injection via phar:// Stream Wrapper",
+      "severity": "HIGH",
+      "cvss": 8.1,
+      "cwe": "CWE-502",
+      "affected_versions": ["5.4.*", "5.5.*", "5.6.*", "7.0.*", "7.1.*", "7.2.*"],
+      "remediation_status": {
+        "upstream_official": "Patched in 7.3+",
+        "eol_php_armor_c_patch": true,
+        "eol_php_armor_runtime_guard": true
+      },
+      "detection": {
+        "ini_checks": [
+          { "directive": "phar.readonly", "recommended": "On" }
+        ],
+        "signature_keywords": ["phar://"]
+      },
+      "description": "Passing user input to file operation functions (file_exists, is_dir, include) using the phar:// stream wrapper automatically triggers deserialization of phar metadata, leading to POP gadget execution."
+    },
+    {
+      "id": "CVE-2016-10033",
+      "alias": "mail-escapeshellcmd-rce",
+      "title": "sendmail -X Parameter Injection via mail() 5th Argument",
+      "severity": "CRITICAL",
+      "cvss": 9.8,
+      "cwe": "CWE-88",
+      "affected_versions": ["5.4.*", "5.5.*", "5.6.*", "7.0.*", "7.1.*", "7.2.*", "7.3.*", "7.4.*"],
+      "remediation_status": {
+        "upstream_official": "Partially addressed in PHPMailer / SwiftMailer",
+        "eol_php_armor_c_patch": false,
+        "eol_php_armor_runtime_guard": true
+      },
+      "detection": {
+        "signature_keywords": ["-X", "-OQueueDirectory", "-C"]
+      },
+      "description": "Passing unsanitized email sender addresses to mail() or escapeshellcmd allows injecting sendmail switches like -X/var/www/shell.php, creating arbitrary PHP files."
+    }
+  ]
+}

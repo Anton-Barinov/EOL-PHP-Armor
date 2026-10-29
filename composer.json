@@ -1,0 +1,32 @@
+{
+  "name": "anton-barinov/eol-php-armor",
+  "description": "Universal Security Hub & Hotpatching Engine for End-Of-Life PHP (5.4–8.1). Protects against php2shell (CVE-2026-109618/19), CGI injection, and filter chains.",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Anton Barinov",
+      "email": "55404783+Anton-Barinov@users.noreply.github.com",
+      "homepage": "https://github.com/Anton-Barinov"
+    }
+  ],
+  "keywords": [
+    "php",
+    "security",
+    "cve-2026-109618",
+    "cve-2026-109619",
+    "php2shell",
+    "eol-php",
+    "waf",
+    "hotpatch",
+    "opencart",
+    "wordpress",
+    "hardening"
+  ],
+  "bin": [
+    "bin/php-armor"
+  ],
+  "require": {
+    "php": ">=5.4.0"
+  }
+}
